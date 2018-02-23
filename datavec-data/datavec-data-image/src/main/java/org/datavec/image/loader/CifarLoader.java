@@ -20,6 +20,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacv.OpenCVFrameConverter;
+import org.nd4j.linalg.api.memory.MemoryWorkspace;
+import org.nd4j.linalg.memory.abstracts.Nd4jWorkspace;
 import org.nd4j.linalg.primitives.Pair;
 import org.datavec.image.data.ImageWritable;
 import org.datavec.image.transform.ColorConversionTransform;
@@ -217,10 +219,13 @@ public class CifarLoader extends NativeImageLoader implements Serializable {
             defineLabels();
 
         if (useSpecialPreProcessCifar && train && !cifarProcessedFilesExists()) {
-            for (int i = fileNum + 1; i <= (TRAINFILENAMES.length); i++) {
-                inputStream = trainInputStream;
-                DataSet result = convertDataSet(numToConvertDS);
-                result.save(new File(trainFilesSerialized + i + ".ser"));
+            try(MemoryWorkspace ws = Nd4j.getWorkspaceManager().scopeOutOfWorkspaces()) {
+                //Scope out, to avoid allocating everything in the WS
+                for (int i = fileNum + 1; i <= (TRAINFILENAMES.length); i++) {
+                    inputStream = trainInputStream;
+                    DataSet result = convertDataSet(numToConvertDS);
+                    result.save(new File(trainFilesSerialized + i + ".ser"));
+                }
             }
             //            for (int i = 1; i <= (TRAINFILENAMES.length); i++){
             //                normalizeCifar(new File(trainFilesSerialized + i + ".ser"));
@@ -348,8 +353,7 @@ public class CifarLoader extends NativeImageLoader implements Serializable {
         Pair<INDArray, opencv_core.Mat> matConversion;
         byte[] byteFeature = new byte[BYTEFILELEN];
 
-        try {
-//            while (inputStream.read(byteFeature) != -1 && batchNumCount != num) {
+        try (MemoryWorkspace ws = Nd4j.getWorkspaceManager().scopeOutOfWorkspaces()) {
             while (batchNumCount != num && inputStream.read(byteFeature) != -1 ) {
                 matConversion = convertMat(byteFeature);
                 try {
