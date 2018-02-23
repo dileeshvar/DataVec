@@ -372,32 +372,36 @@ public class CifarLoader extends NativeImageLoader implements Serializable {
             return new DataSet();
         }
 
-        DataSet result = DataSet.merge(dataSets);
+        DataSet result;
+        try(MemoryWorkspace ws = Nd4j.getWorkspaceManager().scopeOutOfWorkspaces()) {
 
-        double uTempMean, vTempMean;
-        for (DataSet data : result) {
-            try {
-                if (useSpecialPreProcessCifar) {
-                    INDArray uChannel = data.getFeatures().tensorAlongDimension(1, new int[] {0, 2, 3});
-                    INDArray vChannel = data.getFeatures().tensorAlongDimension(2, new int[] {0, 2, 3});
-                    uTempMean = uChannel.meanNumber().doubleValue();
-                    // TODO INDArray.var result is incorrect based on dimensions passed in thus using manual
-                    uStd += varManual(uChannel, uTempMean);
-                    uMean += uTempMean;
-                    vTempMean = vChannel.meanNumber().doubleValue();
-                    vStd += varManual(vChannel, vTempMean);
-                    vMean += vTempMean;
-                    data.setFeatures(data.getFeatureMatrix().div(255));
-                } else {
-                    // normalize if just input stream and not special preprocess
-                    data.setFeatures(data.getFeatureMatrix().div(255));
+            result = DataSet.merge(dataSets);
+
+            double uTempMean, vTempMean;
+            for (DataSet data : result) {
+                try {
+                    if (useSpecialPreProcessCifar) {
+                        INDArray uChannel = data.getFeatures().tensorAlongDimension(1, new int[]{0, 2, 3});
+                        INDArray vChannel = data.getFeatures().tensorAlongDimension(2, new int[]{0, 2, 3});
+                        uTempMean = uChannel.meanNumber().doubleValue();
+                        // TODO INDArray.var result is incorrect based on dimensions passed in thus using manual
+                        uStd += varManual(uChannel, uTempMean);
+                        uMean += uTempMean;
+                        vTempMean = vChannel.meanNumber().doubleValue();
+                        vStd += varManual(vChannel, vTempMean);
+                        vMean += vTempMean;
+                        data.setFeatures(data.getFeatureMatrix().div(255));
+                    } else {
+                        // normalize if just input stream and not special preprocess
+                        data.setFeatures(data.getFeatureMatrix().div(255));
+                    }
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalStateException("The number of channels must be 3 to special preProcess Cifar with.");
                 }
-            } catch (IllegalArgumentException e) {
-                throw new IllegalStateException("The number of channels must be 3 to special preProcess Cifar with.");
             }
+            if (shuffle && num > 1)
+                result.shuffle(seed);
         }
-        if (shuffle && num > 1)
-            result.shuffle(seed);
         return result;
     }
 
