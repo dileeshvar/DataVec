@@ -212,8 +212,13 @@ public class LineRecordReader extends BaseRecordReader {
 
     protected void closeIfRequired(Iterator<String> iterator) {
         if (iterator instanceof LineIterator) {
-            LineIterator iter = (LineIterator) iterator;
-            iter.close();
+            try{
+                LineIterator iter = (LineIterator) iterator;
+                iter.close();
+            } catch(IOException e){
+                throw new RuntimeException(e);
+            }
+
         }
     }
 

@@ -92,7 +92,11 @@ public class CSVSequenceRecordReader extends FileRecordReader implements Sequenc
             return load(lineIter);
         } finally {
             if (lineIter != null) {
-                lineIter.close();
+              try{
+                  lineIter.close();
+              } catch(IOException e){
+                  throw new RuntimeException(e);
+              }
             }
             IOUtils.closeQuietly(inputStream);
         }
