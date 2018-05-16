@@ -48,6 +48,16 @@
             <groupId>org.bytedeco</groupId>
             <artifactId>javacv</artifactId>
             <version>${javacv.version}</version>
+            <exclusions>
+              <exclusion>  <!-- declare the exclusion here -->
+                <groupId>org.bytedeco.javacpp-presets</groupId>
+                <artifactId>flandmark</artifactId>
+              </exclusion>
+              <exclusion>  <!-- declare the exclusion here -->
+                <groupId>org.bytedeco.javacpp-presets</groupId>
+                <artifactId>artoolkitplus</artifactId>
+              </exclusion>
+          </exclusions>
         </dependency>
 
         <dependency>
