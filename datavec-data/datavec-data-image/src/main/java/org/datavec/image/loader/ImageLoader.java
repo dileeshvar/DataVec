@@ -15,9 +15,6 @@
  */
 
 package org.datavec.image.loader;
-
-import com.github.jaiimageio.impl.plugins.tiff.TIFFImageReaderSpi;
-import com.github.jaiimageio.impl.plugins.tiff.TIFFImageWriterSpi;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
@@ -44,8 +41,6 @@ public class ImageLoader extends BaseImageLoader {
     static {
         ImageIO.scanForPlugins();
         IIORegistry registry = IIORegistry.getDefaultInstance();
-        registry.registerServiceProvider(new TIFFImageWriterSpi());
-        registry.registerServiceProvider(new TIFFImageReaderSpi());
         registry.registerServiceProvider(new com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageReaderSpi());
         registry.registerServiceProvider(new com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageWriterSpi());
         registry.registerServiceProvider(new com.twelvemonkeys.imageio.plugins.psd.PSDImageReaderSpi());
