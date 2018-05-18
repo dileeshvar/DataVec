@@ -57,6 +57,10 @@
                 <groupId>org.bytedeco.javacpp-presets</groupId>
                 <artifactId>artoolkitplus</artifactId>
               </exclusion>
+			  <exclusion>  <!-- declare the exclusion here -->
+                <groupId>org.bytedeco.javacpp-presets</groupId>
+                <artifactId>flycapture</artifactId>
+              </exclusion>
           </exclusions>
         </dependency>
 
